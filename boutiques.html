@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boutiques — AfroLink</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root {
+    --green:#1F7A4D; --green-dark:#0E4A2B; --green-light:#E4F3EA;
+    --gold:#D4A017; --gold-dark:#8A6410; --gold-light:#FBF1DA;
+    --ink:#20241F; --gray:#5F5E5A; --border:#E4E2DA; --bg:#F7F6F1;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: #fff; }
+  a { text-decoration: none; color: inherit; }
+
+  .topbar { background: var(--green-dark); color: #fff; font-size: 12px; padding: 6px 24px; display: flex; justify-content: flex-end; gap: 20px; }
+  .topbar span { opacity: 0.9; }
+
+  header { border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 24px; }
+  .logo-lockup { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .logo-lockup img { height: 36px; width: 36px; object-fit: contain; }
+  .logo-lockup .wordmark { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .logo-lockup .wordmark .afro { color: var(--green-dark); }
+  .logo-lockup .wordmark .link { color: var(--gold-dark); }
+  .nav-links { display: flex; gap: 18px; font-size: 13px; font-weight: 600; white-space: nowrap; margin-left: auto; }
+  .nav-links a.current { color: var(--green-dark); }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .page-hero { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: #fff; border-radius: 14px; padding: 32px 28px; margin-bottom: 28px; }
+  .page-hero p.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9; margin: 0 0 8px; }
+  .page-hero h1 { font-size: 24px; margin: 0 0 8px; font-weight: 800; }
+  .page-hero p.sub { font-size: 13.5px; opacity: 0.92; max-width: 560px; margin: 0; }
+
+  .section-title { font-size: 18px; font-weight: 700; margin: 0 0 4px; }
+  .section-sub { font-size: 13px; color: var(--gray); margin: 0 0 16px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start; }
+
+  .search-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .search-row input { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; outline: none; }
+  .search-row input:focus { border-color: var(--gold); }
+  .dir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dir-card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .dir-card .row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .dir-card h3 { font-size: 14.5px; margin: 0; }
+  .badge { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge.verified { background: var(--gold-light); color: var(--gold-dark); }
+  .badge.new { background: var(--green-light); color: var(--green-dark); }
+  .dir-card .loc { font-size: 12px; color: var(--gray); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+  .dir-card .desc { font-size: 12.5px; color: var(--gray); line-height: 1.5; margin: 0 0 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip { font-size: 11px; background: var(--bg); border: 1px solid var(--border); padding: 3px 9px; border-radius: 20px; color: var(--ink); }
+  .contact-btn { font-size: 12px; font-weight: 700; color: var(--gold-dark); border: 1px solid var(--gold); border-radius: 7px; padding: 7px 12px; background: #fff; cursor: pointer; display: inline-block; }
+  .empty-state { border: 1px dashed var(--border); border-radius: 12px; padding: 28px; text-align: center; color: var(--gray); font-size: 13px; grid-column: 1 / -1; }
+  .biz-line { font-size: 11.5px; color: var(--gray); margin-bottom: 10px; display: flex; align-items: center; gap: 4px; }
+  .biz-line i { color: var(--gold-dark); font-size: 13px; }
+
+  .form-card { border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: sticky; top: 24px; }
+  .form-card h2 { font-size: 16px; margin: 0 0 4px; }
+  .form-note { font-size: 11.5px; color: var(--gray); margin: 0 0 16px; line-height: 1.5; background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
+  .field input, .field select, .field textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 10px; font-size: 13px; font-family: inherit; outline: none; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); }
+  .field textarea { resize: vertical; min-height: 64px; }
+  .field-error { color: #B3261E; font-size: 11.5px; margin-top: 4px; display: none; }
+  .field.invalid input, .field.invalid select, .field.invalid textarea { border-color: #B3261E; }
+  .field.invalid .field-error { display: block; }
+  .cat-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .cat-checks label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+  .submit-btn { width: 100%; background: var(--gold-dark); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .submit-btn:hover { background: var(--gold); }
+
+  footer { background: var(--green-dark); color: #d9e6dd; padding: 24px; font-size: 12px; text-align: center; margin-top: 40px; }
+
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 13px; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 100; max-width: 320px; text-align: center; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .dir-grid { grid-template-columns: 1fr; }
+    .form-card { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span><i class="ti ti-map-pin" style="font-size:12px; vertical-align:-1px;"></i> Cameroun · Congo → Europe</span>
+  <span>Aide</span>
+  <span>FR</span>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-lockup" href="index.html">
+      <img src="afrolink-logo.png" alt="AfroLink">
+      <div class="wordmark"><span class="afro">Afro</span><span class="link">Link</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="catalogue.html">Catalogue</a>
+      <a href="boutiques.html" class="current">Trouver des boutiques</a>
+      <a href="producteurs.html">Trouver des producteurs</a>
+      <a href="demandes.html">Demandes d'achat</a>
+      <a href="messagerie.html">Messagerie</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="page-hero">
+    <p class="eyebrow">Boutiques & importateurs</p>
+    <h1>Trouvez des boutiques afro en Europe ou inscrivez la vôtre</h1>
+    <p class="sub">Parcourez l'annuaire des boutiques et importateurs afro d'Europe, ou créez votre profil pour être visible auprès des producteurs du Cameroun et du Congo.</p>
+  </div>
+
+  <div class="layout">
+    <div>
+      <p class="section-title">Annuaire des boutiques</p>
+      <p class="section-sub" id="dir-count">Chargement...</p>
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="Rechercher par nom, catégorie, pays, ville...">
+      </div>
+      <div class="dir-grid" id="dir-grid"></div>
+    </div>
+
+    <div class="form-card">
+      <h2 id="form-title">Inscrire ma boutique</h2>
+      <p class="form-note" id="form-note"><i class="ti ti-info-circle"></i> Chargement...</p>
+      <div id="form-gate"></div>
+      <form id="shop-form" novalidate style="display:none;">
+        <div class="field" data-field="name">
+          <label>Nom de la boutique *</label>
+          <input type="text" name="name" placeholder="Ex : Épicerie Mama Africa">
+          <div class="field-error">Merci d'indiquer un nom.</div>
+        </div>
+        <div class="field" data-field="country">
+          <label>Pays *</label>
+          <select name="country">
+            <option value="">Sélectionner...</option>
+            <option value="France">France</option>
+            <option value="Belgique">Belgique</option>
+            <option value="Allemagne">Allemagne</option>
+            <option value="Pays-Bas">Pays-Bas</option>
+            <option value="Royaume-Uni">Royaume-Uni</option>
+            <option value="Italie">Italie</option>
+            <option value="Espagne">Espagne</option>
+            <option value="Suisse">Suisse</option>
+            <option value="Autre">Autre</option>
+          </select>
+          <div class="field-error">Merci de sélectionner un pays.</div>
+        </div>
+        <div class="field" data-field="city">
+          <label>Ville *</label>
+          <input type="text" name="city" placeholder="Ex : Lyon">
+          <div class="field-error">Merci d'indiquer une ville.</div>
+        </div>
+        <div class="field" data-field="categories">
+          <label>Produits recherchés *</label>
+          <div class="cat-checks">
+            <label><input type="checkbox" name="categories" value="Cacao & café"> Cacao & café</label>
+            <label><input type="checkbox" name="categories" value="Épices"> Épices</label>
+            <label><input type="checkbox" name="categories" value="Feuilles"> Feuilles</label>
+            <label><input type="checkbox" name="categories" value="Huile de palme"> Huile de palme</label>
+            <label><input type="checkbox" name="categories" value="Poisson fumé & séché"> Poisson fumé & séché</label>
+            <label><input type="checkbox" name="categories" value="Manioc, plantain, arachides"> Manioc, plantain, arachides</label>
+            <label><input type="checkbox" name="categories" value="Farines & céréales"> Farines & céréales</label>
+            <label><input type="checkbox" name="categories" value="Boissons locales"> Boissons locales</label>
+          </div>
+          <div class="field-error">Sélectionne au moins une catégorie.</div>
+        </div>
+        <div class="field" data-field="desc">
+          <label>Description courte *</label>
+          <textarea name="desc" placeholder="Décris ta boutique, ta clientèle, tes volumes recherchés..."></textarea>
+          <div class="field-error">Merci d'ajouter une courte description.</div>
+        </div>
+        <div class="field" data-field="businessNumber">
+          <label>Numéro d'entreprise / immatriculation *</label>
+          <input type="text" name="businessNumber" placeholder="Ex : SIRET, n° RCCM, TVA intracommunautaire...">
+          <div class="field-error">Merci d'indiquer ton numéro d'entreprise.</div>
+        </div>
+        <div class="field" data-field="email">
+          <label>Email de contact</label>
+          <input type="email" name="email" disabled>
+          <div class="field-hint" style="font-size:11px; color:var(--gray); margin-top:4px;">Lié à ton compte AfroLink, non modifiable ici.</div>
+        </div>
+        <div class="field" data-field="phone">
+          <label>Téléphone (optionnel)</label>
+          <input type="tel" name="phone" placeholder="+33 6 xx xx xx xx">
+        </div>
+        <button type="submit" class="submit-btn" id="shop-submit-btn">Enregistrer mon profil boutique</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<footer>Maquette — AfroLink.</footer>
+
+<div id="toast"></div>
+
+<script src="api.js"></script>
+<script src="messaging.js"></script>
+<script>
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  const SEED_SHOPS = [
+    { id: 'seed-1', name: 'Épicerie Mama Africa', country: 'France', city: 'Paris', categories: ['Cacao & café', 'Épices', 'Farines & céréales'], desc: 'Épicerie afro-caribéenne installée depuis 12 ans, forte demande en épices et cacao brut.', businessNumber: 'FR 82 123 456 789 00021', email: 'contact@mamaafrica.fr', verified: true },
+    { id: 'seed-2', name: 'Africa Shop Bruxelles', country: 'Belgique', city: 'Bruxelles', categories: ['Feuilles', 'Manioc, plantain, arachides'], desc: 'Supermarché africain, gros volumes de feuilles de ndolé, plantain et manioc chaque semaine.', businessNumber: 'BE 0456.789.123', email: 'achats@africashop.be', verified: true },
+    { id: 'seed-3', name: 'Karibu Market Berlin', country: 'Allemagne', city: 'Berlin', categories: ['Huile de palme', 'Poisson fumé & séché'], desc: 'Épicerie spécialisée cuisine ouest et centre-africaine, recherche fournisseurs réguliers.', businessNumber: 'DE 234567891', email: 'info@karibumarket.de', verified: true },
+    { id: 'seed-4', name: 'Afro Grocery London', country: 'Royaume-Uni', city: 'Londres', categories: ['Cacao & café', 'Boissons locales'], desc: 'Chaîne de 3 boutiques, café et boissons locales très demandés par la diaspora.', businessNumber: 'GB 987654321', email: 'orders@afrogrocery.co.uk', verified: true },
+    { id: 'seed-5', name: 'Sabor Africano Madrid', country: 'Espagne', city: 'Madrid', categories: ['Épices', 'Farines & céréales'], desc: 'Épicerie fine spécialisée produits africains et caribéens haut de gamme.', businessNumber: 'ES B12345678', email: 'compras@saborafricano.es', verified: true },
+    { id: 'seed-6', name: 'Bantu Foods Rotterdam', country: 'Pays-Bas', city: 'Rotterdam', categories: ['Manioc, plantain, arachides', 'Feuilles'], desc: 'Grossiste régional distribuant vers plusieurs épiceries afro aux Pays-Bas.', businessNumber: 'NL 812345678B01', email: 'purchasing@bantufoods.nl', verified: true }
+  ];
+
+  let apiShops = [];
+
+  function allShops() {
+    return [...apiShops, ...SEED_SHOPS];
+  }
+
+  async function loadDirectory() {
+    document.getElementById('dir-count').textContent = 'Chargement...';
+    try {
+      apiShops = await AfroAPI.getPublic('/shops');
+    } catch (e) {
+      apiShops = [];
+      showToast('Impossible de charger l\'annuaire depuis le serveur pour le moment.');
+    }
+    renderDirectory(document.getElementById('search-input').value);
+  }
+
+  function renderDirectory(filterText) {
+    const grid = document.getElementById('dir-grid');
+    const q = (filterText || '').trim().toLowerCase();
+    const list = allShops().filter(s => {
+      if (!q) return true;
+      const hay = [s.name, s.country, s.city, ...(s.categories || [])].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+    document.getElementById('dir-count').textContent = list.length + ' boutique' + (list.length !== 1 ? 's' : '') + (q ? ' trouvée(s) pour « ' + filterText + ' »' : ' inscrites sur AfroLink');
+
+    if (list.length === 0) {
+      grid.innerHTML = '<div class="empty-state">Aucune boutique ne correspond à ta recherche.</div>';
+      return;
+    }
+
+    grid.innerHTML = list.map(s => `
+      <div class="dir-card">
+        <div class="row-top">
+          <h3>${escapeHtml(s.name)}</h3>
+          <span class="badge ${s.verified ? 'verified' : 'new'}">${s.verified ? 'Vérifiée' : 'Nouveau'}</span>
+        </div>
+        <div class="loc"><i class="ti ti-map-pin"></i> ${escapeHtml(s.city)}, ${escapeHtml(s.country)}</div>
+        ${s.businessNumber ? `<div class="biz-line"><i class="ti ti-building"></i> Entreprise enregistrée</div>` : ''}
+        <p class="desc">${escapeHtml(s.desc)}</p>
+        <div class="chips">${(s.categories || []).map(c => `<span class="chip">${escapeHtml(c)}</span>`).join('')}</div>
+        <button class="contact-btn" data-contact-type="boutique" data-contact-id="${escapeHtml(s.id)}" data-contact-name="${escapeHtml(s.name)}" data-contact-email="${escapeHtml(s.email)}">Contacter</button>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  document.getElementById('search-input').addEventListener('input', (e) => renderDirectory(e.target.value));
+
+  document.getElementById('dir-grid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.contact-btn');
+    if (!btn) return;
+    window.openContactModal({
+      contactType: btn.dataset.contactType,
+      contactId: btn.dataset.contactId,
+      name: btn.dataset.contactName,
+      email: btn.dataset.contactEmail
+    });
+  });
+
+  function fieldVal(form, key) {
+    const el = form.querySelector(`[name="${key}"]`);
+    return el ? el.value : '';
+  }
+
+  const FIELD_VALIDATORS = {
+    name: (form) => fieldVal(form, 'name').trim().length > 0,
+    country: (form) => fieldVal(form, 'country').trim().length > 0,
+    city: (form) => fieldVal(form, 'city').trim().length > 0,
+    categories: (form) => form.querySelectorAll('input[name="categories"]:checked').length > 0,
+    desc: (form) => fieldVal(form, 'desc').trim().length > 0,
+    businessNumber: (form) => fieldVal(form, 'businessNumber').trim().length > 0
+  };
+
+  document.getElementById('shop-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const form = e.target;
+    let valid = true;
+
+    Object.keys(FIELD_VALIDATORS).forEach(key => {
+      const fieldEl = form.querySelector(`[data-field="${key}"]`);
+      const ok = FIELD_VALIDATORS[key](form);
+      if (fieldEl) fieldEl.classList.toggle('invalid', !ok);
+      if (!ok) valid = false;
+    });
+
+    if (!valid) {
+      showToast('Merci de compléter les champs obligatoires manquants.');
+      return;
+    }
+
+    const categories = Array.from(form.querySelectorAll('input[name="categories"]:checked')).map(c => c.value);
+    const payload = {
+      name: fieldVal(form, 'name').trim(),
+      country: fieldVal(form, 'country'),
+      city: fieldVal(form, 'city').trim(),
+      categories,
+      desc: fieldVal(form, 'desc').trim(),
+      businessNumber: fieldVal(form, 'businessNumber').trim(),
+      phone: fieldVal(form, 'phone').trim()
+    };
+
+    const btn = document.getElementById('shop-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+
+    try {
+      await AfroAPI.put('/shops/me', payload);
+      showToast('Ton profil boutique a été enregistré dans l\'annuaire.');
+      await loadDirectory();
+      document.getElementById('dir-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      showToast(err.message || 'Une erreur est survenue.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer mon profil boutique';
+    }
+  });
+
+  function prefillOwnProfile() {
+    const user = AfroAPI.getUser();
+    if (!user) return;
+    const own = apiShops.find(s => s.email && user.email && s.email.toLowerCase() === user.email.toLowerCase());
+    const form = document.getElementById('shop-form');
+    const emailInput = form.querySelector('[name="email"]');
+    if (emailInput) emailInput.value = user.email;
+    if (!own) return;
+    form.querySelector('[name="name"]').value = own.name || '';
+    form.querySelector('[name="country"]').value = own.country || '';
+    form.querySelector('[name="city"]').value = own.city || '';
+    form.querySelector('[name="desc"]').value = own.desc || '';
+    form.querySelector('[name="businessNumber"]').value = own.businessNumber || '';
+    form.querySelector('[name="phone"]').value = own.phone || '';
+    (own.categories || []).forEach(cat => {
+      const cb = form.querySelector(`input[name="categories"][value="${CSS.escape(cat)}"]`);
+      if (cb) cb.checked = true;
+    });
+  }
+
+  function updateFormCardVisibility() {
+    const user = AfroAPI.getUser();
+    const gate = document.getElementById('form-gate');
+    const form = document.getElementById('shop-form');
+    const note = document.getElementById('form-note');
+    const title = document.getElementById('form-title');
+
+    if (!user) {
+      title.textContent = 'Inscrire ma boutique';
+      note.innerHTML = '<i class="ti ti-info-circle"></i> Crée un compte boutique pour publier ton profil dans l\'annuaire.';
+      form.style.display = 'none';
+      gate.innerHTML = '<a class="submit-btn" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box;" href="compte.html?role=shop&redirect=boutiques.html">Créer mon compte boutique</a>';
+      return;
+    }
+
+    if (user.role !== 'shop') {
+      title.textContent = 'Inscrire ma boutique';
+      note.innerHTML = '<i class="ti ti-info-circle"></i> Tu es connecté(e) avec un compte producteur. Un compte boutique est nécessaire pour publier un profil ici.';
+      form.style.display = 'none';
+      gate.innerHTML = '';
+      return;
+    }
+
+    title.textContent = 'Mon profil boutique';
+    note.innerHTML = '<i class="ti ti-info-circle"></i> Ces informations sont visibles publiquement dans l\'annuaire des boutiques. Le numéro d\'entreprise sert à la vérification, il n\'est pas affiché publiquement en entier.';
+    gate.innerHTML = '';
+    form.style.display = '';
+    prefillOwnProfile();
+  }
+
+  async function init() {
+    AfroAPI.mountAuthNav();
+    await loadDirectory();
+    updateFormCardVisibility();
+  }
+
+  init();
+</script>
+
+</body>
+</html>

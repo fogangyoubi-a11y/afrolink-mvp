@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messagerie — AfroLink</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root {
+    --green:#1F7A4D; --green-dark:#0E4A2B; --green-light:#E4F3EA;
+    --gold:#D4A017; --gold-dark:#8A6410; --gold-light:#FBF1DA;
+    --ink:#20241F; --gray:#5F5E5A; --border:#E4E2DA; --bg:#F7F6F1;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: #fff; }
+  a { text-decoration: none; color: inherit; }
+
+  .topbar { background: var(--green-dark); color: #fff; font-size: 12px; padding: 6px 24px; display: flex; justify-content: flex-end; gap: 20px; }
+  .topbar span { opacity: 0.9; }
+
+  header { border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 24px; }
+  .logo-lockup { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .logo-lockup img { height: 36px; width: 36px; object-fit: contain; }
+  .logo-lockup .wordmark { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .logo-lockup .wordmark .afro { color: var(--green-dark); }
+  .logo-lockup .wordmark .link { color: var(--gold-dark); }
+  .nav-links { display: flex; gap: 18px; font-size: 13px; font-weight: 600; white-space: nowrap; margin-left: auto; }
+  .nav-links a.current { color: var(--green-dark); }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .page-hero { background: linear-gradient(135deg, var(--green-dark), var(--green)); color: #fff; border-radius: 14px; padding: 32px 28px; margin-bottom: 28px; }
+  .page-hero p.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9; margin: 0 0 8px; }
+  .page-hero h1 { font-size: 24px; margin: 0 0 8px; font-weight: 800; }
+  .page-hero p.sub { font-size: 13.5px; opacity: 0.92; max-width: 560px; margin: 0; }
+
+  .msg-layout { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; min-height: 480px; }
+
+  .conv-list { border-right: 1px solid var(--border); max-height: 620px; overflow-y: auto; }
+  .conv-item { padding: 14px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+  .conv-item:hover { background: var(--bg); }
+  .conv-item.active { background: var(--green-light); }
+  .conv-item .conv-name { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+  .conv-item .conv-type { font-size: 10.5px; color: var(--gold-dark); font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 4px; }
+  .conv-item .conv-preview { font-size: 12px; color: var(--gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .conv-item .conv-date { font-size: 10.5px; color: var(--gray); margin-top: 4px; }
+
+  .conv-empty-list { padding: 28px 18px; text-align: center; color: var(--gray); font-size: 13px; }
+
+  .thread-panel { display: flex; flex-direction: column; height: 100%; min-height: 480px; }
+  .thread-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .thread-header h2 { font-size: 15px; margin: 0 0 2px; }
+  .thread-header .thread-sub { font-size: 12px; color: var(--gray); }
+  .thread-body { flex: 1; overflow-y: auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; background: var(--bg); }
+  .thread-empty-state { margin: auto; text-align: center; color: var(--gray); font-size: 13px; max-width: 260px; }
+  .bubble { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 9px 13px; font-size: 13px; align-self: flex-end; max-width: 70%; }
+  .bubble .bubble-ts { font-size: 10.5px; color: var(--gray); margin-top: 5px; }
+
+  .order-panel { border-top: 1px solid var(--border); padding: 14px 20px; background: #fff; }
+  #order-status { font-size: 13px; margin-bottom: 10px; }
+  .badge-pending { color: var(--gold-dark); font-weight: 700; }
+  .badge-paid { color: var(--green-dark); font-weight: 700; }
+  #order-actions { display: flex; gap: 8px; }
+  #order-amount { flex: 1; max-width: 200px; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 13px; font-family: inherit; outline: none; }
+  #order-amount:focus { border-color: var(--green); }
+  .order-btn { background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 0 16px; font-size: 12.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .order-btn:hover { background: var(--green); }
+  .order-btn.secondary { background: none; color: var(--gray); border: 1px solid var(--border); font-weight: 600; }
+
+  .thread-form { border-top: 1px solid var(--border); padding: 14px 20px; display: flex; gap: 10px; }
+  .thread-form textarea { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 13px; font-family: inherit; resize: none; outline: none; min-height: 44px; }
+  .thread-form textarea:focus { border-color: var(--green); }
+  .thread-form button { background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 0 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .thread-form button:hover { background: var(--green); }
+
+  footer { background: var(--green-dark); color: #d9e6dd; padding: 24px; font-size: 12px; text-align: center; margin-top: 40px; }
+
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 13px; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 100; max-width: 320px; text-align: center; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 860px) {
+    .msg-layout { grid-template-columns: 1fr; }
+    .conv-list { border-right: none; border-bottom: 1px solid var(--border); max-height: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span><i class="ti ti-map-pin" style="font-size:12px; vertical-align:-1px;"></i> Cameroun · Congo → Europe</span>
+  <span>Aide</span>
+  <span>FR</span>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-lockup" href="index.html">
+      <img src="afrolink-logo.png" alt="AfroLink">
+      <div class="wordmark"><span class="afro">Afro</span><span class="link">Link</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="catalogue.html">Catalogue</a>
+      <a href="boutiques.html">Trouver des boutiques</a>
+      <a href="producteurs.html">Trouver des producteurs</a>
+      <a href="demandes.html">Demandes d'achat</a>
+      <a href="messagerie.html" class="current">Messagerie</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="page-hero">
+    <p class="eyebrow">Messagerie</p>
+    <h1>Tes conversations</h1>
+    <p class="sub">Retrouve ici les conversations avec les producteurs et boutiques qui t'ont contacté(e) depuis l'annuaire.</p>
+  </div>
+
+  <div id="inbox-gate" style="display:none; border:1px solid var(--border); border-radius:14px; padding:32px; text-align:center; color:var(--gray); font-size:13.5px;"></div>
+
+  <div class="msg-layout" id="msg-layout" style="display:none;">
+    <div class="conv-list" id="conv-list"></div>
+    <div class="thread-panel">
+      <div class="thread-header" id="thread-header" style="display:none;">
+        <h2 id="thread-name"></h2>
+        <div class="thread-sub" id="thread-sub"></div>
+      </div>
+      <div class="thread-body" id="thread-body">
+        <div class="thread-empty-state">Sélectionne une conversation à gauche, ou contacte un producteur / une boutique depuis l'annuaire pour démarrer une discussion.</div>
+      </div>
+      <div class="order-panel" id="order-panel" style="display:none;">
+        <div id="order-status"></div>
+        <div id="order-actions"></div>
+      </div>
+      <form class="thread-form" id="thread-form" style="display:none;">
+        <textarea id="thread-input" placeholder="Écris ton message..." required></textarea>
+        <button type="submit">Envoyer</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<footer>Maquette — AfroLink.</footer>
+
+<div id="toast"></div>
+
+<script src="api.js"></script>
+<script src="messaging.js"></script>
+<script>
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  const { escapeHtml, formatTs, formatAmountCents } = window.afroLinkMessaging;
+
+  const TYPE_LABELS = { producteur: 'Producteur', boutique: 'Boutique', demande: 'Demande d\'achat' };
+
+  let conversations = [];
+  let activeConvId = null;
+
+  async function loadConversations() {
+    try {
+      conversations = await AfroAPI.get('/conversations');
+    } catch (e) {
+      conversations = [];
+      showToast(e.message || 'Impossible de charger les conversations.');
+    }
+  }
+
+  function renderConvList() {
+    const listEl = document.getElementById('conv-list');
+
+    if (conversations.length === 0) {
+      listEl.innerHTML = '<div class="conv-empty-list">Aucune conversation pour l\'instant.</div>';
+      return;
+    }
+
+    const sorted = [...conversations].sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    listEl.innerHTML = sorted.map(c => {
+      const lastMsg = c.messages.length ? c.messages[c.messages.length - 1] : null;
+      let orderTag = '';
+      if (c.order && c.order.status === 'pending') orderTag = ' · <span class="badge-pending">Commande proposée</span>';
+      else if (c.order && c.order.status === 'paid') orderTag = ' · <span class="badge-paid">Payé</span>';
+      return `
+        <div class="conv-item ${c.id === activeConvId ? 'active' : ''}" data-conv-id="${escapeHtml(c.id)}">
+          <div class="conv-type">${escapeHtml(TYPE_LABELS[c.contactType] || c.contactType || '')}${orderTag}</div>
+          <div class="conv-name">${escapeHtml(c.guestName || c.guestEmail || 'Contact')}</div>
+          <div class="conv-preview">${lastMsg ? escapeHtml(lastMsg.text) : 'Aucun message'}</div>
+          <div class="conv-date">${formatTs(c.updatedAt)}</div>
+        </div>
+      `;
+    }).join('');
+
+    listEl.querySelectorAll('.conv-item').forEach(el => {
+      el.addEventListener('click', () => selectConversation(el.dataset.convId));
+    });
+  }
+
+  function selectConversation(convId) {
+    activeConvId = convId;
+    renderConvList();
+    renderThread();
+  }
+
+  function renderThread() {
+    const header = document.getElementById('thread-header');
+    const form = document.getElementById('thread-form');
+    const body = document.getElementById('thread-body');
+    const orderPanel = document.getElementById('order-panel');
+
+    if (!activeConvId) {
+      header.style.display = 'none';
+      form.style.display = 'none';
+      orderPanel.style.display = 'none';
+      body.innerHTML = '<div class="thread-empty-state">Sélectionne une conversation à gauche pour voir les messages.</div>';
+      return;
+    }
+
+    const conv = conversations.find(c => c.id === activeConvId);
+    if (!conv) {
+      activeConvId = null;
+      renderThread();
+      return;
+    }
+
+    header.style.display = 'block';
+    form.style.display = 'flex';
+    orderPanel.style.display = 'block';
+    document.getElementById('thread-name').textContent = conv.guestName || conv.guestEmail || 'Contact';
+    document.getElementById('thread-sub').textContent = (TYPE_LABELS[conv.contactType] || conv.contactType || '') + (conv.guestEmail ? ' · ' + conv.guestEmail : '');
+
+    if (conv.messages.length === 0) {
+      body.innerHTML = '<div class="thread-empty-state">Aucun message pour l\'instant.</div>';
+    } else {
+      body.innerHTML = conv.messages.map(m => `
+        <div class="bubble">${escapeHtml(m.text)}<div class="bubble-ts">${formatTs(m.createdAt)}</div></div>
+      `).join('');
+      body.scrollTop = body.scrollHeight;
+    }
+
+    renderOrderPanel(conv);
+  }
+
+  function renderOrderPanel(conv) {
+    const statusEl = document.getElementById('order-status');
+    const actionsEl = document.getElementById('order-actions');
+    const order = conv.order;
+    if (!order) {
+      statusEl.innerHTML = 'Aucune commande en cours.';
+      actionsEl.innerHTML = '<input type="number" id="order-amount" placeholder="Montant (€)" min="0" step="0.01"><button type="button" class="order-btn" data-order-action="propose">Proposer un montant</button>';
+    } else if (order.status === 'pending') {
+      statusEl.innerHTML = '<span class="badge-pending">⏳ En attente de paiement</span> — ' + formatAmountCents(order.amountCents);
+      actionsEl.innerHTML = '<button type="button" class="order-btn secondary" data-order-action="reset">Annuler la commande</button>';
+    } else {
+      statusEl.innerHTML = '<span class="badge-paid">✅ Payé</span> — ' + formatAmountCents(order.amountCents) + ' le ' + formatTs(order.paidAt);
+      actionsEl.innerHTML = '<button type="button" class="order-btn secondary" data-order-action="reset">Réinitialiser</button>';
+    }
+  }
+
+  function updateLocalConv(convId, patch) {
+    const idx = conversations.findIndex(c => c.id === convId);
+    if (idx === -1) return;
+    conversations[idx] = { ...conversations[idx], ...patch };
+  }
+
+  document.getElementById('order-panel').addEventListener('click', async (e) => {
+    if (!activeConvId) return;
+    const proposeBtn = e.target.closest('[data-order-action="propose"]');
+    const resetBtn = e.target.closest('[data-order-action="reset"]');
+    if (proposeBtn) {
+      const amountInput = document.getElementById('order-amount');
+      const amount = amountInput ? amountInput.value : '';
+      if (!amount || Number(amount) <= 0) return;
+      const amountCents = Math.round(Number(amount) * 100);
+      try {
+        const order = await AfroAPI.post(`/conversations/${activeConvId}/order`, { amountCents });
+        updateLocalConv(activeConvId, { order });
+        renderConvList();
+        renderThread();
+        showToast('Montant proposé : ' + formatAmountCents(amountCents) + '.');
+      } catch (err) {
+        showToast(err.message || 'Impossible de proposer ce montant.');
+      }
+    } else if (resetBtn) {
+      try {
+        await AfroAPI.post(`/conversations/${activeConvId}/order/cancel`);
+        updateLocalConv(activeConvId, { order: null });
+        renderConvList();
+        renderThread();
+      } catch (err) {
+        showToast(err.message || 'Impossible d\'annuler la commande.');
+      }
+    }
+  });
+
+  document.getElementById('thread-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!activeConvId) return;
+    const input = document.getElementById('thread-input');
+    const text = input.value.trim();
+    if (!text) return;
+    try {
+      const conv = await AfroAPI.post(`/conversations/${activeConvId}/messages`, { text, sender: 'contact' });
+      updateLocalConv(activeConvId, conv);
+      input.value = '';
+      renderConvList();
+      renderThread();
+      showToast('Message envoyé.');
+    } catch (err) {
+      showToast(err.message || 'Impossible d\'envoyer le message.');
+    }
+  });
+
+  async function init() {
+    AfroAPI.mountAuthNav();
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('paid') === '1') showToast('Paiement effectué avec succès.');
+    if (params.get('canceled') === '1') showToast('Paiement annulé.');
+
+    const user = AfroAPI.getUser();
+    const gate = document.getElementById('inbox-gate');
+    const layout = document.getElementById('msg-layout');
+
+    if (!user) {
+      gate.style.display = 'block';
+      layout.style.display = 'none';
+      gate.innerHTML = `<p>Connecte-toi en tant que producteur ou boutique pour accéder à ta messagerie.</p><a href="compte.html?redirect=messagerie.html" style="color:var(--green-dark); font-weight:700; text-decoration:underline;">Se connecter</a>`;
+      return;
+    }
+
+    gate.style.display = 'none';
+    layout.style.display = 'grid';
+    await loadConversations();
+    renderConvList();
+    renderThread();
+  }
+
+  init();
+</script>
+
+</body>
+</html>

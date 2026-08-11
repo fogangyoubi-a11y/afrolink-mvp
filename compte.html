@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon compte — AfroLink</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root {
+    --green:#1F7A4D; --green-dark:#0E4A2B; --green-light:#E4F3EA;
+    --gold:#D4A017; --gold-dark:#8A6410; --gold-light:#FBF1DA;
+    --ink:#20241F; --gray:#5F5E5A; --border:#E4E2DA; --bg:#F7F6F1;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: #fff; }
+  a { text-decoration: none; color: inherit; }
+
+  .topbar { background: var(--green-dark); color: #fff; font-size: 12px; padding: 6px 24px; display: flex; justify-content: flex-end; gap: 20px; }
+  .topbar span { opacity: 0.9; }
+
+  header { border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 24px; }
+  .logo-lockup { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .logo-lockup img { height: 36px; width: 36px; object-fit: contain; }
+  .logo-lockup .wordmark { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .logo-lockup .wordmark .afro { color: var(--green-dark); }
+  .logo-lockup .wordmark .link { color: var(--gold-dark); }
+  .nav-links { display: flex; gap: 18px; font-size: 13px; font-weight: 600; white-space: nowrap; margin-left: auto; }
+
+  .wrap { max-width: 460px; margin: 0 auto; padding: 48px 24px; }
+
+  .card { border: 1px solid var(--border); border-radius: 14px; padding: 28px; }
+  .card h1 { font-size: 20px; margin: 0 0 6px; }
+  .card p.sub { font-size: 13px; color: var(--gray); margin: 0 0 20px; }
+
+  .tabs { display: flex; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+  .tabs button { flex: 1; border: none; background: #fff; padding: 10px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--gray); }
+  .tabs button.active { background: var(--green-dark); color: #fff; }
+
+  .role-toggle { display: flex; gap: 10px; margin-bottom: 18px; }
+  .role-toggle label { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px; font-size: 12.5px; font-weight: 600; text-align: center; cursor: pointer; }
+  .role-toggle input { display: none; }
+  .role-toggle input:checked + span { color: var(--green-dark); }
+  .role-toggle label:has(input:checked) { border-color: var(--green); background: var(--green-light); }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
+  .field input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 10px; font-size: 13px; font-family: inherit; outline: none; }
+  .field input:focus { border-color: var(--green); }
+  .field-hint { font-size: 11px; color: var(--gray); margin-top: 4px; }
+
+  .submit-btn { width: 100%; background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .submit-btn:hover { background: var(--green); }
+  .submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+  .error-box { background: #FCEBEA; color: #B3261E; font-size: 12.5px; padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; display: none; }
+  .error-box.show { display: block; }
+
+  .already-in { text-align: center; padding: 20px 0; }
+  .already-in p { font-size: 13.5px; color: var(--gray); margin: 0 0 14px; }
+
+  footer { background: var(--green-dark); color: #d9e6dd; padding: 24px; font-size: 12px; text-align: center; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span><i class="ti ti-map-pin" style="font-size:12px; vertical-align:-1px;"></i> Cameroun · Congo → Europe</span>
+  <span>Aide</span>
+  <span>FR</span>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-lockup" href="index.html">
+      <img src="afrolink-logo.png" alt="AfroLink">
+      <div class="wordmark"><span class="afro">Afro</span><span class="link">Link</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="catalogue.html">Catalogue</a>
+      <a href="boutiques.html">Trouver des boutiques</a>
+      <a href="producteurs.html">Trouver des producteurs</a>
+      <a href="demandes.html">Demandes d'achat</a>
+      <a href="messagerie.html">Messagerie</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card" id="account-card">
+    <!-- filled by script -->
+  </div>
+</div>
+
+<footer>Maquette — AfroLink.</footer>
+
+<script src="api.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const redirectTo = params.get('redirect');
+  const preselectRole = params.get('role') === 'shop' ? 'shop' : 'producer';
+
+  const card = document.getElementById('account-card');
+  let mode = params.get('mode') === 'login' ? 'login' : 'signup';
+
+  function destinationFor(role) {
+    return role === 'shop' ? 'boutiques.html' : 'producteurs.html';
+  }
+
+  function render() {
+    const user = AfroAPI.getUser();
+    if (user) {
+      card.innerHTML = `
+        <div class="already-in">
+          <p>Tu es déjà connecté(e) en tant que <strong>${escapeHtml(user.email)}</strong> (${user.role === 'producer' ? 'producteur' : 'boutique'}).</p>
+          <a class="submit-btn" style="display:block; text-decoration:none; box-sizing:border-box;" href="${redirectTo || destinationFor(user.role)}">Continuer</a>
+          <p style="margin-top:14px;"><a href="#" id="switch-account-link" style="font-size:12.5px; color: var(--gray); text-decoration:underline;">Se connecter avec un autre compte</a></p>
+        </div>
+      `;
+      document.getElementById('switch-account-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        AfroAPI.logout();
+        render();
+      });
+      return;
+    }
+
+    card.innerHTML = `
+      <h1>${mode === 'login' ? 'Connexion' : 'Créer un compte'}</h1>
+      <p class="sub">${mode === 'login' ? 'Connecte-toi pour gérer ton profil.' : 'Crée un compte producteur ou boutique pour publier ton profil sur AfroLink.'}</p>
+      <div class="tabs">
+        <button type="button" id="tab-signup" class="${mode === 'signup' ? 'active' : ''}">Créer un compte</button>
+        <button type="button" id="tab-login" class="${mode === 'login' ? 'active' : ''}">Connexion</button>
+      </div>
+      <div class="error-box" id="error-box"></div>
+      <form id="account-form" novalidate>
+        ${mode === 'signup' ? `
+        <div class="role-toggle">
+          <label><input type="radio" name="role" value="producer" ${preselectRole === 'producer' ? 'checked' : ''}><span>Je suis producteur</span></label>
+          <label><input type="radio" name="role" value="shop" ${preselectRole === 'shop' ? 'checked' : ''}><span>Je suis une boutique</span></label>
+        </div>
+        <div class="field">
+          <label>${preselectRole === 'shop' ? 'Nom de la boutique' : "Nom du producteur / de l'exploitation"} *</label>
+          <input type="text" name="name" required>
+        </div>
+        ` : ''}
+        <div class="field">
+          <label>Email *</label>
+          <input type="email" name="email" required>
+        </div>
+        <div class="field">
+          <label>Mot de passe *</label>
+          <input type="password" name="password" required minlength="8">
+          ${mode === 'signup' ? '<div class="field-hint">8 caractères minimum.</div>' : ''}
+        </div>
+        <button type="submit" class="submit-btn" id="submit-btn">${mode === 'signup' ? 'Créer mon compte' : 'Se connecter'}</button>
+      </form>
+    `;
+
+    document.getElementById('tab-signup').addEventListener('click', () => { mode = 'signup'; render(); });
+    document.getElementById('tab-login').addEventListener('click', () => { mode = 'login'; render(); });
+
+    document.getElementById('account-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const errorBox = document.getElementById('error-box');
+      const submitBtn = document.getElementById('submit-btn');
+      errorBox.classList.remove('show');
+
+      const email = form.email.value.trim();
+      const password = form.password.value;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = mode === 'signup' ? 'Création...' : 'Connexion...';
+
+      try {
+        let user;
+        if (mode === 'signup') {
+          const role = form.querySelector('input[name="role"]:checked').value;
+          const name = form.name.value.trim();
+          if (!name) throw { message: "Merci d'indiquer un nom." };
+          user = await AfroAPI.signup({ email, password, role, name });
+        } else {
+          user = await AfroAPI.login({ email, password });
+        }
+        window.location.href = redirectTo || destinationFor(user.role);
+      } catch (err) {
+        errorBox.textContent = err.message || 'Une erreur est survenue.';
+        errorBox.classList.add('show');
+        submitBtn.disabled = false;
+        submitBtn.textContent = mode === 'signup' ? 'Créer mon compte' : 'Se connecter';
+      }
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  render();
+</script>
+
+</body>
+</html>

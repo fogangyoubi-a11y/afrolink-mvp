@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Producteurs — AfroLink</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  :root {
+    --green:#1F7A4D; --green-dark:#0E4A2B; --green-light:#E4F3EA;
+    --gold:#D4A017; --gold-dark:#8A6410; --gold-light:#FBF1DA;
+    --ink:#20241F; --gray:#5F5E5A; --border:#E4E2DA; --bg:#F7F6F1;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: var(--ink); background: #fff; }
+  a { text-decoration: none; color: inherit; }
+
+  .topbar { background: var(--green-dark); color: #fff; font-size: 12px; padding: 6px 24px; display: flex; justify-content: flex-end; gap: 20px; }
+  .topbar span { opacity: 0.9; }
+
+  header { border-bottom: 1px solid var(--border); padding: 12px 24px; }
+  .header-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 24px; }
+  .logo-lockup { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .logo-lockup img { height: 36px; width: 36px; object-fit: contain; }
+  .logo-lockup .wordmark { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+  .logo-lockup .wordmark .afro { color: var(--green-dark); }
+  .logo-lockup .wordmark .link { color: var(--gold-dark); }
+  .nav-links { display: flex; gap: 18px; font-size: 13px; font-weight: 600; white-space: nowrap; margin-left: auto; }
+  .nav-links a.current { color: var(--green-dark); }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .page-hero { background: linear-gradient(135deg, var(--green-dark), var(--green)); color: #fff; border-radius: 14px; padding: 32px 28px; margin-bottom: 28px; }
+  .page-hero p.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9; margin: 0 0 8px; }
+  .page-hero h1 { font-size: 24px; margin: 0 0 8px; font-weight: 800; }
+  .page-hero p.sub { font-size: 13.5px; opacity: 0.92; max-width: 560px; margin: 0; }
+
+  .section-title { font-size: 18px; font-weight: 700; margin: 0 0 4px; }
+  .section-sub { font-size: 13px; color: var(--gray); margin: 0 0 16px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 380px; gap: 28px; align-items: start; }
+
+  /* Directory */
+  .search-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .search-row input { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; outline: none; }
+  .search-row input:focus { border-color: var(--green); }
+  .dir-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .dir-card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .dir-card .row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .dir-card h3 { font-size: 14.5px; margin: 0; }
+  .badge { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+  .badge.verified { background: var(--green-light); color: var(--green-dark); }
+  .badge.new { background: var(--gold-light); color: var(--gold-dark); }
+  .dir-card .loc { font-size: 12px; color: var(--gray); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+  .dir-card .desc { font-size: 12.5px; color: var(--gray); line-height: 1.5; margin: 0 0 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chip { font-size: 11px; background: var(--bg); border: 1px solid var(--border); padding: 3px 9px; border-radius: 20px; color: var(--ink); }
+  .contact-btn { font-size: 12px; font-weight: 700; color: var(--green-dark); border: 1px solid var(--green); border-radius: 7px; padding: 7px 12px; background: #fff; cursor: pointer; display: inline-block; }
+  .empty-state { border: 1px dashed var(--border); border-radius: 12px; padding: 28px; text-align: center; color: var(--gray); font-size: 13px; grid-column: 1 / -1; }
+  .card-photos { display: flex; gap: 6px; margin-bottom: 10px; }
+  .card-photo { width: 72px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+  .card-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .video-link { font-size: 12px; font-weight: 700; color: var(--green-dark); display: inline-flex; align-items: center; gap: 4px; }
+  .video-link i { font-size: 15px; }
+  .photo-preview { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .photo-thumb-wrap { position: relative; }
+  .photo-thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; }
+  .field input[type="file"] { border: 1.5px dashed var(--border); padding: 10px; background: var(--bg); cursor: pointer; }
+
+  /* Form */
+  .form-card { border: 1px solid var(--border); border-radius: 14px; padding: 22px; position: sticky; top: 24px; }
+  .form-card h2 { font-size: 16px; margin: 0 0 4px; }
+  .form-note { font-size: 11.5px; color: var(--gray); margin: 0 0 16px; line-height: 1.5; background: var(--bg); border-radius: 8px; padding: 10px 12px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12.5px; font-weight: 600; margin-bottom: 5px; }
+  .field input, .field select, .field textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 10px; font-size: 13px; font-family: inherit; outline: none; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); }
+  .field textarea { resize: vertical; min-height: 64px; }
+  .field-error { color: #B3261E; font-size: 11.5px; margin-top: 4px; display: none; }
+  .field.invalid input, .field.invalid select, .field.invalid textarea { border-color: #B3261E; }
+  .field.invalid .field-error { display: block; }
+  .cat-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .cat-checks label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+  .submit-btn { width: 100%; background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .submit-btn:hover { background: var(--green); }
+
+  footer { background: var(--green-dark); color: #d9e6dd; padding: 24px; font-size: 12px; text-align: center; margin-top: 40px; }
+
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: var(--ink); color: #fff; font-size: 13px; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 100; max-width: 320px; text-align: center; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .dir-grid { grid-template-columns: 1fr; }
+    .form-card { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span><i class="ti ti-map-pin" style="font-size:12px; vertical-align:-1px;"></i> Cameroun · Congo → Europe</span>
+  <span>Aide</span>
+  <span>FR</span>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-lockup" href="index.html">
+      <img src="afrolink-logo.png" alt="AfroLink">
+      <div class="wordmark"><span class="afro">Afro</span><span class="link">Link</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="catalogue.html">Catalogue</a>
+      <a href="boutiques.html">Trouver des boutiques</a>
+      <a href="producteurs.html" class="current">Trouver des producteurs</a>
+      <a href="demandes.html">Demandes d'achat</a>
+      <a href="messagerie.html">Messagerie</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="page-hero">
+    <p class="eyebrow">Producteurs vérifiés</p>
+    <h1>Trouvez des producteurs ou inscrivez votre exploitation</h1>
+    <p class="sub">Parcourez l'annuaire des producteurs du Cameroun et du Congo, ou créez votre profil pour être visible auprès des boutiques afro d'Europe.</p>
+  </div>
+
+  <div class="layout">
+    <div>
+      <p class="section-title">Annuaire des producteurs</p>
+      <p class="section-sub" id="dir-count">Chargement...</p>
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="Rechercher par nom, catégorie, pays, ville...">
+      </div>
+      <div class="dir-grid" id="dir-grid"></div>
+    </div>
+
+    <div class="form-card">
+      <h2 id="form-title">Devenir producteur</h2>
+      <p class="form-note" id="form-note"><i class="ti ti-info-circle"></i> Chargement...</p>
+      <div id="form-gate"></div>
+      <form id="producer-form" novalidate style="display:none;">
+        <div class="field" data-field="name">
+          <label>Nom du producteur / de l'exploitation *</label>
+          <input type="text" name="name" placeholder="Ex : Coopérative Ndolé Vert">
+          <div class="field-error">Merci d'indiquer un nom.</div>
+        </div>
+        <div class="field" data-field="country">
+          <label>Pays *</label>
+          <select name="country">
+            <option value="">Sélectionner...</option>
+            <option value="Cameroun">Cameroun</option>
+            <option value="Congo">Congo</option>
+          </select>
+          <div class="field-error">Merci de sélectionner un pays.</div>
+        </div>
+        <div class="field" data-field="city">
+          <label>Ville / région *</label>
+          <input type="text" name="city" placeholder="Ex : Penja, Littoral">
+          <div class="field-error">Merci d'indiquer une ville ou région.</div>
+        </div>
+        <div class="field" data-field="categories">
+          <label>Catégories de produits *</label>
+          <div class="cat-checks">
+            <label><input type="checkbox" name="categories" value="Cacao & café"> Cacao & café</label>
+            <label><input type="checkbox" name="categories" value="Épices"> Épices</label>
+            <label><input type="checkbox" name="categories" value="Feuilles"> Feuilles</label>
+            <label><input type="checkbox" name="categories" value="Huile de palme"> Huile de palme</label>
+            <label><input type="checkbox" name="categories" value="Poisson fumé & séché"> Poisson fumé & séché</label>
+            <label><input type="checkbox" name="categories" value="Manioc, plantain, arachides"> Manioc, plantain, arachides</label>
+            <label><input type="checkbox" name="categories" value="Farines & céréales"> Farines & céréales</label>
+            <label><input type="checkbox" name="categories" value="Boissons locales"> Boissons locales</label>
+          </div>
+          <div class="field-error">Sélectionne au moins une catégorie.</div>
+        </div>
+        <div class="field" data-field="desc">
+          <label>Description courte *</label>
+          <textarea name="desc" placeholder="Décris ton exploitation, tes produits, tes volumes disponibles..."></textarea>
+          <div class="field-error">Merci d'ajouter une courte description.</div>
+        </div>
+        <div class="field" data-field="photos">
+          <label>Photos de vos produits (jusqu'à 3, optionnel)</label>
+          <input type="file" name="photos" id="photos-input" accept="image/*" multiple>
+          <div class="photo-preview" id="photo-preview"></div>
+        </div>
+        <div class="field" data-field="video">
+          <label>Vidéo de présentation (lien YouTube/Vimeo, optionnel)</label>
+          <input type="url" name="video" placeholder="https://youtube.com/watch?v=...">
+          <div class="field-error">Merci d'indiquer un lien valide (commençant par https://).</div>
+        </div>
+        <div class="field" data-field="email">
+          <label>Email de contact</label>
+          <input type="email" name="email" disabled>
+          <div class="field-hint" style="font-size:11px; color:var(--gray); margin-top:4px;">Lié à ton compte AfroLink, non modifiable ici.</div>
+        </div>
+        <div class="field" data-field="phone">
+          <label>Téléphone (optionnel)</label>
+          <input type="tel" name="phone" placeholder="+237 6xx xx xx xx">
+        </div>
+        <button type="submit" class="submit-btn" id="producer-submit-btn">Publier mon profil producteur</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<footer>Maquette — AfroLink.</footer>
+
+<div id="toast"></div>
+
+<script src="api.js"></script>
+<script src="messaging.js"></script>
+<script>
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  const SEED_PRODUCERS = [
+    { id: 'seed-1', name: 'Coopérative Ndolé Vert', country: 'Cameroun', city: 'Douala, Littoral', categories: ['Feuilles', 'Manioc, plantain, arachides'], desc: 'Coopérative de 40 exploitants spécialisée dans les feuilles de ndolé et okok fraîches et séchées, export hebdomadaire.', email: 'contact@ndolevert.cm', verified: true },
+    { id: 'seed-2', name: 'Ferme Poivre de Penja Excellence', country: 'Cameroun', city: 'Penja, Littoral', categories: ['Épices'], desc: 'Producteur certifié de poivre de Penja IGP, blanc et noir, conditionnement export.', email: 'ventes@penjaexcellence.cm', verified: true },
+    { id: 'seed-3', name: 'Cacao Sud Cameroun SARL', country: 'Cameroun', city: 'Ebolowa, Sud', categories: ['Cacao & café'], desc: 'Fèves de cacao fermenté et café robusta, traçabilité complète, volumes conteneur.', email: 'export@cacaosud.cm', verified: true },
+    { id: 'seed-4', name: 'Huilerie Traditionnelle de Kribi', country: 'Cameroun', city: 'Kribi, Sud', categories: ['Huile de palme'], desc: 'Huile de palme rouge artisanale et semi-industrielle, pressée à froid.', email: 'huilerie.kribi@gmail.com', verified: true },
+    { id: 'seed-5', name: 'Pêcheries Fumées du Kouilou', country: 'Congo', city: 'Pointe-Noire', categories: ['Poisson fumé & séché'], desc: 'Poisson fumé et séché (machoiron, tilapia), chaîne de séchage contrôlée pour export.', email: 'contact@pecheries-kouilou.cg', verified: true },
+    { id: 'seed-6', name: 'Coopérative Manioc & Arachides du Niari', country: 'Congo', city: 'Dolisie, Niari', categories: ['Manioc, plantain, arachides', 'Farines & céréales'], desc: 'Farine de manioc (fufu), chikwangue, arachides et plantain, production locale regroupée.', email: 'cooperative.niari@yahoo.fr', verified: true },
+    { id: 'seed-7', name: 'Boissons Locales Brazza', country: 'Congo', city: 'Brazzaville', categories: ['Boissons locales'], desc: 'Jus de bissap, gingembre et boissons fermentées artisanales, embouteillage aux normes export.', email: 'contact@boissonsbrazza.cg', verified: true }
+  ];
+
+  let apiProducers = [];
+
+  function allProducers() {
+    return [...apiProducers, ...SEED_PRODUCERS];
+  }
+
+  async function loadDirectory() {
+    document.getElementById('dir-count').textContent = 'Chargement...';
+    try {
+      apiProducers = await AfroAPI.getPublic('/producers');
+    } catch (e) {
+      apiProducers = [];
+      showToast('Impossible de charger l\'annuaire depuis le serveur pour le moment.');
+    }
+    renderDirectory(document.getElementById('search-input').value);
+  }
+
+  function renderDirectory(filterText) {
+    const grid = document.getElementById('dir-grid');
+    const q = (filterText || '').trim().toLowerCase();
+    const list = allProducers().filter(p => {
+      if (!q) return true;
+      const hay = [p.name, p.country, p.city, ...(p.categories || [])].join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+    document.getElementById('dir-count').textContent = list.length + ' producteur' + (list.length !== 1 ? 's' : '') + (q ? ' trouvé(s) pour « ' + filterText + ' »' : ' inscrits sur AfroLink');
+
+    if (list.length === 0) {
+      grid.innerHTML = '<div class="empty-state">Aucun producteur ne correspond à ta recherche.</div>';
+      return;
+    }
+
+    grid.innerHTML = list.map(p => `
+      <div class="dir-card">
+        <div class="row-top">
+          <h3>${escapeHtml(p.name)}</h3>
+          <span class="badge ${p.verified ? 'verified' : 'new'}">${p.verified ? 'Vérifié' : 'Nouveau'}</span>
+        </div>
+        <div class="loc"><i class="ti ti-map-pin"></i> ${escapeHtml(p.city)}, ${escapeHtml(p.country)}</div>
+        ${(p.photos && p.photos.length) ? `<div class="card-photos">${p.photos.map(src => `<img src="${src}" class="card-photo">`).join('')}</div>` : ''}
+        <p class="desc">${escapeHtml(p.desc)}</p>
+        <div class="chips">${(p.categories || []).map(c => `<span class="chip">${escapeHtml(c)}</span>`).join('')}</div>
+        <div class="card-actions">
+          <button class="contact-btn" data-contact-type="producteur" data-contact-id="${escapeHtml(p.id)}" data-contact-name="${escapeHtml(p.name)}" data-contact-email="${escapeHtml(p.email)}">Contacter</button>
+          ${p.video ? `<a href="${escapeHtml(p.video)}" target="_blank" rel="noopener" class="video-link"><i class="ti ti-video"></i> Voir la vidéo</a>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  document.getElementById('search-input').addEventListener('input', (e) => renderDirectory(e.target.value));
+
+  document.getElementById('dir-grid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.contact-btn');
+    if (!btn) return;
+    window.openContactModal({
+      contactType: btn.dataset.contactType,
+      contactId: btn.dataset.contactId,
+      name: btn.dataset.contactName,
+      email: btn.dataset.contactEmail
+    });
+  });
+
+  function fieldVal(form, key) {
+    const el = form.querySelector(`[name="${key}"]`);
+    return el ? el.value : '';
+  }
+
+  const FIELD_VALIDATORS = {
+    name: (form) => fieldVal(form, 'name').trim().length > 0,
+    country: (form) => fieldVal(form, 'country').trim().length > 0,
+    city: (form) => fieldVal(form, 'city').trim().length > 0,
+    categories: (form) => form.querySelectorAll('input[name="categories"]:checked').length > 0,
+    desc: (form) => fieldVal(form, 'desc').trim().length > 0,
+    video: (form) => { const v = fieldVal(form, 'video').trim(); return v === '' || /^https?:\/\/.+/i.test(normalizeVideoUrl(v)); }
+  };
+
+  // Accept links pasted without a scheme (e.g. "youtube.com/watch?v=xxx") instead of
+  // silently blocking the whole submission just because "https://" was omitted.
+  function normalizeVideoUrl(v) {
+    v = (v || '').trim();
+    if (!v) return '';
+    return /^https?:\/\//i.test(v) ? v : 'https://' + v;
+  }
+
+  // Photo upload: resize/compress client-side and keep as base64 data URLs (local prototype only)
+  let photosData = [];
+  let photosProcessing = false;
+  const photosInput = document.getElementById('photos-input');
+  const photoPreview = document.getElementById('photo-preview');
+  const submitBtn = document.querySelector('.submit-btn');
+
+  function resizeImage(file, maxDim, quality) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else if (height >= width && height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => reject(new Error('image load failed'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('file read failed'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotoPreview() {
+    photoPreview.innerHTML = photosData.map(src => `<img src="${src}" class="photo-thumb">`).join('');
+  }
+
+  if (photosInput) {
+    photosInput.addEventListener('change', async () => {
+      const files = Array.from(photosInput.files).slice(0, 3);
+      photosData = [];
+      photosProcessing = true;
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Traitement des photos...'; }
+      for (const file of files) {
+        try {
+          const dataUrl = await resizeImage(file, 640, 0.7);
+          photosData.push(dataUrl);
+        } catch (e) { /* skip file that failed to load */ }
+      }
+      renderPhotoPreview();
+      photosProcessing = false;
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Enregistrer mon profil producteur'; }
+    });
+  }
+
+  document.getElementById('producer-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const form = e.target;
+
+    // Photos are still being read/resized (async) — submitting now would publish
+    // the profile with an empty photos array. Block until it's done.
+    if (photosProcessing) {
+      showToast('Merci de patienter, tes photos sont en cours de traitement...');
+      return;
+    }
+
+    let valid = true;
+
+    Object.keys(FIELD_VALIDATORS).forEach(key => {
+      const fieldEl = form.querySelector(`[data-field="${key}"]`);
+      const ok = FIELD_VALIDATORS[key](form);
+      if (fieldEl) fieldEl.classList.toggle('invalid', !ok);
+      if (!ok) valid = false;
+    });
+
+    if (!valid) {
+      showToast('Merci de compléter les champs obligatoires manquants.');
+      return;
+    }
+
+    const categories = Array.from(form.querySelectorAll('input[name="categories"]:checked')).map(c => c.value);
+    const payload = {
+      name: fieldVal(form, 'name').trim(),
+      country: fieldVal(form, 'country'),
+      city: fieldVal(form, 'city').trim(),
+      categories,
+      desc: fieldVal(form, 'desc').trim(),
+      photos: photosData.slice(),
+      video: normalizeVideoUrl(fieldVal(form, 'video')),
+      phone: fieldVal(form, 'phone').trim()
+    };
+
+    const btn = document.getElementById('producer-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Enregistrement...';
+
+    try {
+      await AfroAPI.put('/producers/me', payload);
+      showToast('Ton profil producteur a été enregistré dans l\'annuaire.');
+      await loadDirectory();
+      document.getElementById('dir-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      showToast(err.message || 'Une erreur est survenue.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enregistrer mon profil producteur';
+    }
+  });
+
+  function prefillOwnProfile() {
+    const user = AfroAPI.getUser();
+    if (!user) return;
+    const own = apiProducers.find(p => p.email && user.email && p.email.toLowerCase() === user.email.toLowerCase());
+    const form = document.getElementById('producer-form');
+    const emailInput = form.querySelector('[name="email"]');
+    if (emailInput) emailInput.value = user.email;
+    if (!own) return;
+    form.querySelector('[name="name"]').value = own.name || '';
+    form.querySelector('[name="country"]').value = own.country || '';
+    form.querySelector('[name="city"]').value = own.city || '';
+    form.querySelector('[name="desc"]').value = own.desc || '';
+    form.querySelector('[name="video"]').value = own.video || '';
+    form.querySelector('[name="phone"]').value = own.phone || '';
+    (own.categories || []).forEach(cat => {
+      const cb = form.querySelector(`input[name="categories"][value="${CSS.escape(cat)}"]`);
+      if (cb) cb.checked = true;
+    });
+    photosData = (own.photos || []).slice();
+    renderPhotoPreview();
+  }
+
+  function updateFormCardVisibility() {
+    const user = AfroAPI.getUser();
+    const gate = document.getElementById('form-gate');
+    const form = document.getElementById('producer-form');
+    const note = document.getElementById('form-note');
+    const title = document.getElementById('form-title');
+
+    if (!user) {
+      title.textContent = 'Devenir producteur';
+      note.innerHTML = '<i class="ti ti-info-circle"></i> Crée un compte producteur pour publier ton profil dans l\'annuaire.';
+      form.style.display = 'none';
+      gate.innerHTML = '<a class="submit-btn" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box;" href="compte.html?role=producer&redirect=producteurs.html">Créer mon compte producteur</a>';
+      return;
+    }
+
+    if (user.role !== 'producer') {
+      title.textContent = 'Devenir producteur';
+      note.innerHTML = '<i class="ti ti-info-circle"></i> Tu es connecté(e) avec un compte boutique. Un compte producteur est nécessaire pour publier un profil ici.';
+      form.style.display = 'none';
+      gate.innerHTML = '';
+      return;
+    }
+
+    title.textContent = 'Mon profil producteur';
+    note.innerHTML = '<i class="ti ti-info-circle"></i> Ces informations sont visibles publiquement dans l\'annuaire des producteurs.';
+    gate.innerHTML = '';
+    form.style.display = '';
+    prefillOwnProfile();
+  }
+
+  async function init() {
+    AfroAPI.mountAuthNav();
+    await loadDirectory();
+    updateFormCardVisibility();
+  }
+
+  init();
+</script>
+
+</body>
+</html>
