@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS products (
   price REAL,
   unit TEXT,
   description TEXT,
+  photo TEXT,            -- data URL of the product photo, optional
   created_at TEXT NOT NULL
 );
 

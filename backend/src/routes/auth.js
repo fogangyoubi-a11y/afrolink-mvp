@@ -3,15 +3,21 @@ const bcrypt = require('bcryptjs');
 const { run, get } = require('../db');
 const { newId, nowIso } = require('../util');
 const { signToken, requireAuth } = require('../middleware/auth');
+const { rateLimit } = require('../middleware/rateLimit');
 
 const router = express.Router();
+
+// Slow down credential-stuffing / brute-force attempts: 10 tries per 15 minutes per IP,
+// per route. Login is a little tighter than signup since it's the more common target.
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Trop de tentatives de connexion. Merci de reessayer dans quelques minutes.' });
+const signupLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: 'Trop de tentatives. Merci de reessayer dans quelques minutes.' });
 
 function isValidEmail(v) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || '').trim());
 }
 
 // POST /api/auth/signup { email, password, role: 'producer'|'shop', name }
-router.post('/signup', (req, res) => {
+router.post('/signup', signupLimiter, (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '');
   const role = req.body.role;
@@ -47,7 +53,7 @@ router.post('/signup', (req, res) => {
 });
 
 // POST /api/auth/login { email, password }
-router.post('/login', (req, res) => {
+router.post('/login', loginLimiter, (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '');
 

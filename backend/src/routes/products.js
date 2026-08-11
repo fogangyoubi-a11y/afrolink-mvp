@@ -15,9 +15,14 @@ function serialize(row) {
     price: row.price,
     unit: row.unit,
     desc: row.description,
+    photo: row.photo || null,
     createdAt: row.created_at
   };
 }
+
+// A resized JPEG at 640px/quality 0.7 (the client-side limits used by the upload UI)
+// lands well under this — this is just a backstop against oversized/garbage payloads.
+const MAX_PHOTO_LENGTH = 2_000_000;
 
 // GET /api/products — the catalogue
 router.get('/', (req, res) => {
@@ -43,10 +48,15 @@ router.post('/', requireAuth('producer'), (req, res) => {
   if (!name) return res.status(400).json({ error: "Merci d'indiquer un nom de produit." });
   if (!Number.isFinite(price) || price <= 0) return res.status(400).json({ error: 'Prix invalide.' });
 
+  let photo = b.photo ? String(b.photo) : null;
+  if (photo && (!photo.startsWith('data:image/') || photo.length > MAX_PHOTO_LENGTH)) {
+    return res.status(400).json({ error: 'Photo invalide ou trop volumineuse.' });
+  }
+
   const id = newId('product');
-  run(`INSERT INTO products (id, producer_id, name, category, country, price, unit, description, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [id, producer.id, name, String(b.category || ''), String(b.country || ''), price, String(b.unit || 'kg'), String(b.desc || '').trim(), nowIso()]);
+  run(`INSERT INTO products (id, producer_id, name, category, country, price, unit, description, photo, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [id, producer.id, name, String(b.category || ''), String(b.country || ''), price, String(b.unit || 'kg'), String(b.desc || '').trim(), photo, nowIso()]);
 
   res.status(201).json(serialize(get('SELECT * FROM products WHERE id = ?', [id])));
 });

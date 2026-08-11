@@ -13,7 +13,21 @@ const orderRoutes = require('./routes/orders');
 
 const app = express();
 
-app.use(cors());
+// CORS_ORIGIN lets you lock the API down to your real frontend domain(s) once deployed
+// (comma-separated, e.g. "https://afrolink.com,https://www.afrolink.com"). Left empty,
+// any origin is allowed — which is what you want while testing locally by opening the
+// HTML files directly (file://) or from a dev server on an unpredictable port.
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean);
+app.use(cors({
+  origin(origin, callback) {
+    // `origin` is undefined for non-browser requests (curl, server-to-server) and for
+    // pages opened as file:// — always allow those. Otherwise check the allow-list.
+    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Origine non autorisee par CORS.'));
+  }
+}));
 
 // Stripe requires the raw request body to verify webhook signatures, so this
 // route is registered BEFORE the global express.json() parser below.

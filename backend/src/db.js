@@ -26,4 +26,16 @@ function all(sql, params = []) {
   return db.prepare(sql).all(...params);
 }
 
+// Lightweight migrations: `CREATE TABLE IF NOT EXISTS` above only creates a table the
+// first time the database file is initialized — it does NOT add new columns to a table
+// that already exists on disk. This adds any columns introduced after the initial
+// schema without wiping existing data.
+function ensureColumn(table, column, definition) {
+  const cols = all(`PRAGMA table_info(${table})`);
+  if (!cols.some(c => c.name === column)) {
+    run(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  }
+}
+ensureColumn('products', 'photo', 'TEXT');
+
 module.exports = { db, run, get, all };

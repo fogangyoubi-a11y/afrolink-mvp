@@ -60,7 +60,8 @@
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
   .product-card { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: box-shadow .15s, border-color .15s; background: #fff; }
   .product-card:hover { border-color: var(--gold); box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-  .product-thumb { height: 110px; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 34px; color: var(--green-dark); position: relative; }
+  .product-thumb { height: 110px; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 34px; color: var(--green-dark); position: relative; overflow: hidden; }
+  .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
   .product-thumb .verified { position: absolute; top: 8px; right: 8px; background: #fff; border-radius: 999px; padding: 3px 8px; font-size: 10.5px; font-weight: 700; color: var(--green-dark); display: flex; align-items: center; gap: 4px; }
   .product-body { padding: 12px 14px 14px; }
   .product-body .name { font-size: 14px; font-weight: 700; margin: 0 0 4px; }
@@ -76,7 +77,10 @@
   .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); align-items: center; justify-content: center; z-index: 50; padding: 20px; }
   .modal-overlay.open { display: flex; }
   .modal { background: #fff; border-radius: 14px; max-width: 460px; width: 100%; overflow: hidden; }
-  .modal-thumb { height: 160px; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 52px; color: var(--green-dark); }
+  .modal-thumb { height: 160px; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 52px; color: var(--green-dark); overflow: hidden; }
+  .modal-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-preview { margin-top: 8px; }
+  .photo-preview img { width: 100%; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; }
   .modal-body { padding: 20px 22px 22px; }
   .modal-body .close { float: right; border: none; background: none; font-size: 18px; cursor: pointer; color: var(--gray); }
   .modal-body h3 { font-size: 18px; margin: 0 0 6px; }
@@ -180,6 +184,11 @@
             <label>Description courte</label>
             <textarea name="desc" placeholder="Conditionnement, volumes disponibles..."></textarea>
           </div>
+          <div class="field" data-field="photo">
+            <label>Photo du produit</label>
+            <input type="file" name="photo" id="product-photo-input" accept="image/*">
+            <div class="photo-preview" id="product-photo-preview"></div>
+          </div>
           <button type="submit" class="submit-btn" id="product-submit-btn">Publier ce produit</button>
         </form>
       </div>
@@ -230,6 +239,10 @@ function showToast(msg) {
   el.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
 }
 
 const ICONS = {
@@ -301,13 +314,13 @@ function normalizeProduct(p) {
       id: p.id, name: p.name, category: p.category, country: p.country,
       producer: p.producer.name, producerEmail: p.producer.email, producerId: p.producerId || null,
       price: Number(p.price) || 0, unit: p.unit || 'kg',
-      verified: !!p.producer.verified, desc: p.desc || ''
+      verified: !!p.producer.verified, desc: p.desc || '', photo: p.photo || null
     };
   }
   return {
     id: p.id, name: p.name, category: p.category, country: p.country,
     producer: p.producer, producerEmail: PRODUCER_EMAILS[p.producer] || 'contact@afrolink-demo.cm', producerId: null,
-    price: Number(p.price) || 0, unit: p.unit, verified: !!p.verified, desc: p.desc || ''
+    price: Number(p.price) || 0, unit: p.unit, verified: !!p.verified, desc: p.desc || '', photo: p.photo || null
   };
 }
 
@@ -390,7 +403,7 @@ function renderGrid(list) {
   grid.innerHTML = list.map(p => `
     <div class="product-card" onclick="openModal('${p.id}')">
       <div class="product-thumb">
-        <i class="ti ${ICONS[p.category] || 'ti-package'}"></i>
+        ${p.photo ? `<img src="${p.photo}" alt="${escapeHtml(p.name)}">` : `<i class="ti ${ICONS[p.category] || 'ti-package'}"></i>`}
         ${p.verified ? `<span class="verified"><i class="ti ti-shield-check" style="font-size:11px;"></i>Vérifié</span>` : ""}
       </div>
       <div class="product-body">
@@ -406,7 +419,7 @@ function renderGrid(list) {
 function openModal(id) {
   const p = PRODUCTS.find(x => x.id === id);
   currentModalProduct = p;
-  document.getElementById("modal-thumb").innerHTML = `<i class="ti ${ICONS[p.category] || 'ti-package'}"></i>`;
+  document.getElementById("modal-thumb").innerHTML = p.photo ? `<img src="${p.photo}" alt="${escapeHtml(p.name)}">` : `<i class="ti ${ICONS[p.category] || 'ti-package'}"></i>`;
   document.getElementById("modal-cat").textContent = p.category;
   document.getElementById("modal-name").textContent = p.name;
   document.getElementById("modal-origin").textContent = p.country;
@@ -452,6 +465,52 @@ function updatePublishPanelVisibility() {
   panel.style.display = '';
 }
 
+// Photo upload: resize/compress client-side and keep as a base64 data URL (same approach as producteurs.html)
+let productPhotoData = null;
+let productPhotoProcessing = false;
+const productPhotoInput = document.getElementById('product-photo-input');
+const productPhotoPreview = document.getElementById('product-photo-preview');
+
+function resizeImage(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+        else if (height >= width && height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = () => reject(new Error('image load failed'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('file read failed'));
+    reader.readAsDataURL(file);
+  });
+}
+
+if (productPhotoInput) {
+  productPhotoInput.addEventListener('change', async () => {
+    const file = productPhotoInput.files[0];
+    productPhotoData = null;
+    productPhotoPreview.innerHTML = '';
+    if (!file) return;
+    productPhotoProcessing = true;
+    const btn = document.getElementById('product-submit-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Traitement de la photo...'; }
+    try {
+      productPhotoData = await resizeImage(file, 640, 0.7);
+      productPhotoPreview.innerHTML = `<img src="${productPhotoData}">`;
+    } catch (e) { /* skip file that failed to load */ }
+    productPhotoProcessing = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Publier ce produit'; }
+  });
+}
+
 document.getElementById('product-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
@@ -468,13 +527,19 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
     showToast('Merci de remplir tous les champs obligatoires.');
     return;
   }
+  if (productPhotoProcessing) {
+    showToast('Merci de patienter, la photo est en cours de traitement...');
+    return;
+  }
 
   btn.disabled = true;
   btn.textContent = 'Publication...';
   try {
-    await AfroAPI.post('/products', { name, category, country, price, unit, desc });
+    await AfroAPI.post('/products', { name, category, country, price, unit, desc, photo: productPhotoData || null });
     showToast('Produit publié avec succès.');
     form.reset();
+    productPhotoData = null;
+    productPhotoPreview.innerHTML = '';
     await loadCatalogue();
     buildFilters();
     applyFilters();
